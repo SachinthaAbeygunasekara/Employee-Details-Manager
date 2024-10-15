@@ -10,8 +10,7 @@ include_once("employeeStatus.php");
             $employeestatus = new EmployeeStatus();
 
             $sql = "SELECT * FROM employeestatus WHERE id =".$id;
-            $dbconn = CommonDao::getConnection();
-            $result = $dbconn->query($sql);
+            $result = CommonDao::getResult($sql);
             $row = $result->fetch_assoc();
 
             $employeestatus->setId($row['id']);
@@ -27,8 +26,7 @@ include_once("employeeStatus.php");
             $employeestatuses = array();
 
             $sql = "SELECT * FROM employeestatus";
-            $dbconn = CommonDao::getConnection();
-            $result = $dbconn->query($sql);
+            $result = CommonDao::getResult($sql);
             while($rows = $result->fetch_assoc()){
                 
                 $employeestatus = new EmployeeStatus();

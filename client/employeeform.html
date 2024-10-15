@@ -40,7 +40,7 @@
         let oldEmployee = "";
         let employee = "";
 
-        let baseurl = "http://127.0.0.1/Project_Class/Project_11/test4/";
+        let baseurl = "http://127.0.0.1/Project_Class/Project_11/test5/server/";
 
 
 
@@ -68,10 +68,10 @@
             btnUpdate.setAttribute("disabled","diasabled");
             btnDelete.setAttribute("disabled","diasabled");
 
-            genders = get(baseurl+"genderController.php");
-            designations = get(baseurl+"designationController.php");
-            employeeStatuses = get(baseurl+"employeeStatusController.php");
-            employees = get(baseurl+"employeeController.php");
+            genders = get(baseurl+"genders");
+            designations = get(baseurl+"designations");
+            employeeStatuses = get(baseurl+"employeeStatuses");
+            employees = get(baseurl+"employees");
             loadView();
         }
 
@@ -242,13 +242,13 @@
 
                 let confirm = window.confirm("Are you sure want to add this employee?\n\n"+ employee.name+"\n"+employee.dob+"\n"+employee.nic+"\n"+employee.mobile+"\n"+employee.address+"\n"+employee.email+"\n"+employee.gender.name+"\n"+employee.employeeStatus.name+"\n"+employee.designation.name);
                 if(confirm){
-                    let results = post(baseurl+"employeeAdd.php","employee="+JSON.stringify(employee));
+                    let results = post(baseurl+"employees",JSON.stringify(employee));
                     if (results !== ""){
                         window.alert(results);
                     }else{
                         window.alert("Success...!");
                         clearForm();
-                        employees = get(baseurl+"employeeController.php");
+                        employees = get(baseurl+"employees");
                         fillTable(employees,tblMain,['name','dob','nic','mobile','address','email',function(e){return e.gender.name},function(e){return e.employeestatus.name},function(e){return e.designation.name}]);
                     }
                 }
@@ -259,13 +259,13 @@
             console.log(oldEmployee);
             let confirm = window.confirm("Are you sure want to delete this employee?\n\nName: "+ oldEmployee.name);
             if(confirm){
-                let results = post(baseurl+"employeeDelete.php","employee="+JSON.stringify(oldEmployee));
+                let results = del(baseurl+"employees/"+oldEmployee.id);
                 if (results !== ""){
                     window.alert(results);
                 }else{
                     window.alert("Success...!");
                     clearForm();
-                    employees = get(baseurl+"employeeController.php");
+                    employees = get(baseurl+"employees");
                     fillTable(employees,tblMain,['name','dob','nic','mobile','address','email',function(e){return e.gender.name},function(e){return e.employeestatus.name},function(e){return e.designation.name}]);
                 }
             }
@@ -273,7 +273,6 @@
 
         function getUpdates() {
             let updates = "";
-            console.log(oldEmployee.employeestatus.id);
             if (oldEmployee != null){
                 if (oldEmployee.name !== employee.name ) updates += "Name Updated\n";
                 if (oldEmployee.dob !== employee.dob ) updates += "DOB Updated\n";
@@ -308,13 +307,13 @@
             }else{
                 let confirm = window.confirm("Are you sure want to update this employee?\n\n"+ updates);
                 if(confirm){
-                    let results = post(baseurl+"employeeUpdate.php","employee="+JSON.stringify(employee));
+                    let results = put(baseurl+"employees/"+oldEmployee.id,JSON.stringify(employee));
                     if (results !== ""){
                         window.alert(results);
                     }else{
                         window.alert("Success...!");
                         clearForm();
-                        employees = get(baseurl+"employeeController.php");
+                        employees = get(baseurl+"employees");
                         fillTable(employees,tblMain,['name','dob','nic','mobile','address','email',function(e){return e.gender.name},function(e){return e.employeestatus.name},function(e){return e.designation.name}]);
                     }
                 }
@@ -325,8 +324,31 @@
         function post(url,data){
             var http = new XMLHttpRequest();
             http.open("POST",url,false);
-            http.setRequestHeader("content-type","application/x-www-form-urlencoded");
+            http.setRequestHeader("Content-type","application/json");
             http.send(data);
+
+            if(http.status === 200){
+                return http.responseText;
+            }
+            return null;
+        }
+
+        function put(url,data){
+            let http = new XMLHttpRequest();
+            http.open("PUT",url,false);
+            http.setRequestHeader("Content-type","application/json");
+            http.send(data);
+
+            if(http.status === 200){
+                return http.responseText;
+            }
+            return null;
+        }
+
+        function del(url){
+            let http = new XMLHttpRequest();
+            http.open("DELETE",url,false);
+            http.send();
 
             if(http.status === 200){
                 return http.responseText;
@@ -479,7 +501,7 @@
                 }
             }
 
-            employees = get(baseurl+"employeeController.php?"+query);
+            employees = get(baseurl+"employees?"+query);
             fillTable(employees,tblMain,['name','dob','nic','mobile','address','email',function(e){return e.gender.name},function(e){return e.employeestatus.name},function(e){return e.designation.name}]);
         }
 
@@ -489,7 +511,7 @@
             txtSearchName.value = "";
             cmbSearchGender.value = null;
 
-            employees = get(baseurl+"employeeController.php?");
+            employees = get(baseurl+"employees?");
             fillTable(employees,tblMain,['name','dob','nic','mobile','address','email',function(e){return e.gender.name},function(e){return e.employeestatus.name},function(e){return e.designation.name}]);
         }
 

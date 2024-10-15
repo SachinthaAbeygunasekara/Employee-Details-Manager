@@ -2,7 +2,7 @@
 
 class CommonDao{
 
-  public static function getConnection(){
+  public static function getResult($sql){
 
     $dbconn = new mysqli("localhost", "root", "1234","harvest");
 
@@ -10,7 +10,8 @@ class CommonDao{
       die("Connection failed: ");
     }
 
-    return $dbconn;
+      return $dbconn->query($sql);
+
   }
 
 }

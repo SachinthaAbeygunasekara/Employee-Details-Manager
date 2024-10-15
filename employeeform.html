@@ -1,6 +1,20 @@
 <html>
 <head>
     <script>
+        
+        function Employee(id,name,dob,nic,mobile,address,email,gender,employeeStatus,designation) {
+            this.id,
+            this.name,
+            this.dob,
+            this.nic,
+            this.mobile,
+            this.address,
+            this.email,
+            this.gender,
+            this.employeeStatus,
+            this.designation;
+        }
+        
         window. addEventListener("load",initialize);
 
         var ajax;
@@ -24,13 +38,20 @@
         let designationValidation;
 
         let oldEmployee = "";
+        let employee = "";
 
+        let baseurl = "http://127.0.0.1/Project_Class/Project_11/test3/";
 
 
 
         function initialize() {
 
-            btnClear.addEventListener("click",clearForm);
+            btnClear.addEventListener("click", function () {
+                let confirm = window.confirm("Are you sure want to clear this Form");
+                if(confirm){
+                    clearForm();
+                }
+            });
             btnSearch.addEventListener("click", btnSearchMC);
             btnSearchClear.addEventListener("click",btnSearchClearMC);
             txtName.addEventListener("keyup",txtNameKU);
@@ -41,27 +62,29 @@
             cmbEmpStatus.addEventListener("change",cmbEmpStatusCH);
             cmbDesignation.addEventListener("change",cmbDesignationCH);
             btnAdd.addEventListener("click",btnAddMC);
+            btnDelete.addEventListener("click",btnDeleteMC);
+            btnUpdate.addEventListener("click",btnUpdateMC);
 
             btnUpdate.setAttribute("disabled","diasabled");
-            btnDelete.setAttribute("disabled","diasabled");
+            btnUpdate.setAttribute("disabled","diasabled");
 
-            genders = get("genderController.php");
+            genders = get(baseurl+"genderController.php");
+            designations = get(baseurl+"designationController.php");
+            employeeStatuses = get(baseurl+"employeeStatusController.php");
+            employees = get(baseurl+"employeeController.php");
+            loadView();
+        }
+
+        function loadView() {
             fillCombo(genders,cmbGender,"name","Select a Gender");
             fillCombo(genders,cmbSearchGender,"name","Select a Gender");
-
-            designations = get("designationController.php");
             fillCombo(designations,cmbDesignation,"name","Select a Designations");
-
-            employeeStatuses = get("employeeStatusController.php");
             fillCombo(employeeStatuses,cmbEmpStatus,"name","Select a EmployeeStatus");
-
-            employees = get("employeeController.php");
             fillTable(employees,tblMain,['name','dob','nic','mobile','address','email',function(e){return e.gender.name},function(e){return e.employeestatus.name},function(e){return e.designation.name}]);
-
-
         }
 
         function txtNameKU() {
+
             let name = txtName.value;
             let namePattern = new RegExp("^[A-Z][a-z]{2,}$");
 
@@ -69,7 +92,7 @@
                 txtName.style.backgroundColor = invalid;
                 nameValidation = false;
             }else {
-                if (oldEmployee != null && oldEmployee.name !== name) {
+                if (oldEmployee !== "" && oldEmployee.name !== name) {
                     txtName.style.backgroundColor = Update;
                     nameValidation = true;
                 } else {
@@ -81,13 +104,13 @@
 
         function txtNicKU() {
             let nic = txtNic.value;
-            let nicPattern = new RegExp("^(?:19|20)?\\d{2}[0-9]{10}|[0-9]{9}[x|X|v|V]$");
+            let nicPattern = new RegExp("^([0-9]{9}[x|X|v|V]|[0-9]{12})$");
 
             if (!nicPattern.test(nic)){
                 txtNic.style.backgroundColor = invalid;
                 nicValidation = false;
             }else{
-                if (oldEmployee != null && oldEmployee.nic !== nic) {
+                if (oldEmployee !== "" && oldEmployee.nic !== nic) {
                     txtNic.style.backgroundColor = Update;
                     nicValidation = true;
                 } else {
@@ -105,7 +128,7 @@
                 txtMobile.style.backgroundColor = invalid;
                 mobileValidation = false;
             }else{
-                if (oldEmployee != null && oldEmployee.mobile !== mobile) {
+                if (oldEmployee !== "" && oldEmployee.mobile !== mobile) {
                     txtMobile.style.backgroundColor = Update;
                     mobileValidation = true;
                 } else {
@@ -117,13 +140,13 @@
 
         function txtEmailKU() {
             let email = txtEmail.value;
-            let emailPattern = new RegExp("[A-Za-z0-9\\._%+\\-]+@[A-Za-z0-9\\.\\-]+\\.[A-Za-z]{3,}");
+            let emailPattern = new RegExp("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{3}$");
 
             if (!emailPattern.test(email)){
                 txtEmail.style.backgroundColor = invalid;
                 emailValidation = false;
             }else{
-                if (oldEmployee != null && oldEmployee.email !== email) {
+                if (oldEmployee !== "" && oldEmployee.email !== email) {
                     txtEmail.style.backgroundColor = Update;
                     emailValidation = true;
                 } else {
@@ -140,7 +163,7 @@
                 cmbGender.style.backgroundColor = invalid;
                 genderValidation = false;
             }else{
-                if (oldEmployee != null && oldEmployee.gender.id !== gender.id) {
+                if (oldEmployee !== "" && oldEmployee.gender.id !== gender.id) {
                     cmbGender.style.backgroundColor = Update;
                     genderValidation = true;
                 } else {
@@ -154,43 +177,161 @@
         function cmbEmpStatusCH() {
             let empStatus = JSON.parse(cmbEmpStatus.value);
 
-            if (!empStatus == null){
+            if (empStatus == null){
                 cmbEmpStatus.style.backgroundColor = invalid;
                 empStatusValidation = false;
             }else{
-                cmbEmpStatus.style.backgroundColor = valid;
-                empStatusValidation = true;
+                if (oldEmployee !== "" && oldEmployee.employeestatus.id !== empStatus.id) {
+                    cmbEmpStatus.style.backgroundColor = Update;
+                    empStatusValidation = true;
+                } else {
+                    cmbEmpStatus.style.backgroundColor = valid;
+                    empStatusValidation = true;
+                }
             }
         }
 
         function cmbDesignationCH() {
             let designation = JSON.parse(cmbDesignation.value);
 
-            if (!designation == null){
+            if (designation == null){
                 cmbDesignation.style.backgroundColor = invalid;
                 designationValidation = false;
             }else{
-                cmbDesignation.style.backgroundColor = valid;
-                designationValidation = true;
+                if (oldEmployee !== "" && oldEmployee.designation.id !== designation.id) {
+                    cmbDesignation.style.backgroundColor = Update;
+                    designationValidation = true;
+                } else {
+                    cmbDesignation.style.backgroundColor = valid;
+                    designationValidation = true;
+                }
             }
         }
 
+        function getErrors() {
+            let errors ="";
+
+            if(!nameValidation)errors += "\nInvalid Name";
+            if (!nicValidation) errors += "\nInvalid Nic";
+            if (!mobileValidation) errors += "\nInvalid Mobile";
+            if (!emailValidation) errors += "\nInvalid Email";
+            if (!genderValidation) errors += "\nInvalid Gender";
+            if (!empStatusValidation) errors += "\nInvalid EmployeeStatus";
+            if (!designationValidation) errors += "\nInvalid Designation";
+
+            return errors;
+        }
+
         function btnAddMC() {
-            let error ="";
 
-            if(!nameValidation)error += "\nInvalid Name";
-            if (!nicValidation) error += "\nInvalid Nic";
-            if (!mobileValidation) error += "\nInvalid Mobile";
-            if (!emailValidation) error += "\nInvalid Email";
-            if (!genderValidation) error += "\nInvalid Gender";
-            if (!empStatusValidation) error += "\nInvalid EmployeeStatus";
-            if (!designationValidation) error += "\nInvalid Designation";
+            let errors = getErrors();
 
-            if (error !== ""){
-                window.alert("Error"+error)
+            if (errors !== ""){
+                window.alert("You have following errors : "+errors);
             }else{
-                window.alert("Ok");
+                employee = new Employee();
+                employee.name = txtName.value;
+                employee.dob = txtDob.value;
+                employee.nic = txtNic.value;
+                employee.mobile = txtMobile.value;
+                employee.address = txtAddress.value;
+                employee.email = txtEmail.value;
+                employee.gender = JSON.parse(cmbGender.value);
+                employee.employeeStatus = JSON.parse(cmbEmpStatus.value);
+                employee.designation = JSON.parse(cmbDesignation.value);
+
+                let confirm = window.confirm("Are you sure want to add this employee?\n\n"+ employee.name+"\n"+employee.dob+"\n"+employee.nic+"\n"+employee.mobile+"\n"+employee.address+"\n"+employee.email+"\n"+employee.gender.name+"\n"+employee.employeeStatus.name+"\n"+employee.designation.name);
+                if(confirm){
+                    let results = post(baseurl+"employeeAdd.php","employee="+JSON.stringify(employee));
+                    if (results !== ""){
+                        window.alert(results);
+                    }else{
+                        window.alert("Success...!");
+                        clearForm();
+                        employees = get(baseurl+"employeeController.php");
+                        fillTable(employees,tblMain,['name','dob','nic','mobile','address','email',function(e){return e.gender.name},function(e){return e.employeestatus.name},function(e){return e.designation.name}]);
+                    }
+                }
             }
+        }
+
+        function btnDeleteMC() {
+            console.log(oldEmployee);
+            let confirm = window.confirm("Are you sure want to delete this employee?\n\nName: "+ oldEmployee.name);
+            if(confirm){
+                let results = post(baseurl+"employeeDelete.php","employee="+JSON.stringify(oldEmployee));
+                if (results !== ""){
+                    window.alert(results);
+                }else{
+                    window.alert("Success...!");
+                    clearForm();
+                    employees = get(baseurl+"employeeController.php");
+                    fillTable(employees,tblMain,['name','dob','nic','mobile','address','email',function(e){return e.gender.name},function(e){return e.employeestatus.name},function(e){return e.designation.name}]);
+                }
+            }
+        }
+
+        function getUpdates() {
+            let updates = "";
+            console.log(oldEmployee.employeestatus.id);
+            if (oldEmployee != null){
+                if (oldEmployee.name !== employee.name ) updates += "Name Updated\n";
+                if (oldEmployee.dob !== employee.dob ) updates += "DOB Updated\n";
+                if (oldEmployee.nic !== employee.nic ) updates += "NIC Updated\n";
+                if (oldEmployee.mobile !== employee.mobile ) updates += "Mobile Updated\n";
+                if (oldEmployee.address !== employee.address ) updates += "Address Updated\n";
+                if (oldEmployee.email !== employee.email ) updates += "Email Updated\n";
+                if (oldEmployee.gender.id !== employee.gender.id ) updates += "Gender Updated\n";
+                if (oldEmployee.employeestatus.id !== employee.employeeStatus.id) updates += "EmployeeStatus Updated\n";
+                if (oldEmployee.designation.id !== employee.designation.id ) updates += "Designation Updated";
+            }
+            return updates;
+        }
+
+        function btnUpdateMC() {
+            employee = new Employee();
+            employee.id = oldEmployee.id;
+            employee.name = txtName.value;
+            employee.dob = txtDob.value;
+            employee.nic = txtNic.value;
+            employee.mobile = txtMobile.value;
+            employee.address = txtAddress.value;
+            employee.email = txtEmail.value;
+            employee.gender = JSON.parse(cmbGender.value);
+            employee.employeeStatus = JSON.parse(cmbEmpStatus.value);
+            employee.designation = JSON.parse(cmbDesignation.value);
+
+            let updates = getUpdates();
+
+            if (updates == ""){
+                window.alert("Nothing to update");
+            }else{
+                let confirm = window.confirm("Are you sure want to update this employee?\n\n"+ updates);
+                if(confirm){
+                    let results = post(baseurl+"employeeUpdate.php","employee="+JSON.stringify(employee));
+                    if (results !== ""){
+                        window.alert(results);
+                    }else{
+                        window.alert("Success...!");
+                        clearForm();
+                        employees = get(baseurl+"employeeController.php");
+                        fillTable(employees,tblMain,['name','dob','nic','mobile','address','email',function(e){return e.gender.name},function(e){return e.employeestatus.name},function(e){return e.designation.name}]);
+                    }
+                }
+            }
+
+        }
+
+        function post(url,data){
+            var http = new XMLHttpRequest();
+            http.open("POST",url,false);
+            http.setRequestHeader("content-type","application/x-www-form-urlencoded");
+            http.send(data);
+
+            if(http.status === 200){
+                return http.responseText;
+            }
+            return null;
         }
 
         function get(url){
@@ -204,9 +345,7 @@
             return null;
         }
         
-        function loadView() {
-            fillTable();
-        }
+
 
         function fillCombo(data,cmb,text,hint){
 
@@ -275,7 +414,6 @@
                             clearTableSelection();
 
                             this.parentNode.parentNode.style.backgroundColor = select;
-
                             oldEmployee = data[i];
                         }
                     })
@@ -288,15 +426,13 @@
 
         function clearTableSelection() {
             let trList = tblMain.children[1].children;
-            console.log(trList);
             for (let i = 0; i < trList.length; i++) {
                 trList[i].style.backgroundColor = initial;
             }
         }
 
         function clearForm(){
-            let confirm = window.confirm("Are you sure want to clear this Form");
-            if(confirm){
+
                 txtName.value = null;
                 txtDob.value = null;
                 txtNic.value = null;
@@ -311,9 +447,17 @@
                 btnDelete.setAttribute("disabled","diasabled");
                 btnAdd.removeAttribute("disabled");
 
+                txtName.style.backgroundColor = initial;
+                txtDob.style.backgroundColor = initial;
+                txtNic.style.backgroundColor = initial;
+                txtMobile.style.backgroundColor = initial;
+                txtAddress.style.backgroundColor = initial;
+                txtEmail.style.backgroundColor = initial;
+                cmbGender.style.backgroundColor = initial;
+                cmbEmpStatus.style.backgroundColor = initial;
+                cmbDesignation.style.backgroundColor = initial;
+                oldEmployee = "";
                 clearTableSelection();
-            }
-
         }
 
         function btnSearchMC() {
@@ -334,15 +478,17 @@
                 }
             }
 
-            employees = get("./employeeController.php?"+query);
+            employees = get(baseurl+"employeeController.php?"+query);
             fillTable(employees,tblMain,['name','dob','nic','mobile','address','email',function(e){return e.gender.name},function(e){return e.employeestatus.name},function(e){return e.designation.name}]);
         }
+
+
 
         function btnSearchClearMC(){
             txtSearchName.value = "";
             cmbSearchGender.value = null;
 
-            employees = get("./employeeController.php?");
+            employees = get(baseurl+"employeeController.php?");
             fillTable(employees,tblMain,['name','dob','nic','mobile','address','email',function(e){return e.gender.name},function(e){return e.employeestatus.name},function(e){return e.designation.name}]);
         }
 

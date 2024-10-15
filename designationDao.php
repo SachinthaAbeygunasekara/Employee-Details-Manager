@@ -10,8 +10,7 @@ include_once("designation.php");
             $designation = new Designation();
 
             $sql = "SELECT * FROM designation WHERE id =".$id;
-            $dbconn = CommonDao::getConnection();
-            $result = $dbconn->query($sql);
+            $result = CommonDao::getResult($sql);
             $row = $result->fetch_assoc();
 
             $designation->setId($row['id']);
@@ -27,8 +26,7 @@ include_once("designation.php");
             $designations = array();
 
             $sql = "SELECT * FROM designation";
-            $dbconn = CommonDao::getConnection();
-            $result = $dbconn->query($sql);
+            $result = CommonDao::getResult($sql);
             while($rows = $result->fetch_assoc()){
                 
                 $designation = new Designation();
